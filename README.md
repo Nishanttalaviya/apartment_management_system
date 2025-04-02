@@ -77,8 +77,8 @@ cd apartment-management
 
 ## 📬 Contact
 📧 Email: your.email@example.com  
-🌍 GitHub: [yourusername](https://github.com/yourusername)  
-🔗 LinkedIn: [yourprofile](https://linkedin.com/in/yourprofile)
+🌍 GitHub: [22SOECE11080]((https://github.com/22SOECE11080/))  
+🔗 Portfolio: [yourprofile](heshjoshiportfolio.netlify.app)
 
 ## 📜 License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
