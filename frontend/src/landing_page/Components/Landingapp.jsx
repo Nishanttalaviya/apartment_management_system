@@ -16,6 +16,7 @@ import WhyChooseUs from "./WhyChooseUs";
 import Services from "./Services";
 import Apartments from "./Apartments";
 import ContactUs from "./ContactUs";
+import Home from "../../userpanel/Components/Home";
 
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -56,6 +57,7 @@ const LandingApp = () => {
 
         {/* Dynamic Pages without Navbar & Footer */}
         <Route path="/sign_in" element={<Signin />} />
+        <Route path="/userapp" element={<Home />} />
         <Route path="/forget" element={<Forget />} />
         <Route path="/reset" element={<Reset />} />
         <Route path="/confirm" element={<Confirm />} />
