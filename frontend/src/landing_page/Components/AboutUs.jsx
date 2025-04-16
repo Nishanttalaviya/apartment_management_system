@@ -1,6 +1,7 @@
 // import { useEffect } from "react";
 // import AOS from "aos"; // Import AOS
 // import "aos/dist/aos.css"; // Import AOS styles
+import c4 from "../Assets/image/2.jpg";
 
 const AboutUs = () => {
     // useEffect(() => {
@@ -34,12 +35,11 @@ const AboutUs = () => {
             data-aos-duration="1000"
           >
             <img
-              src="https://via.placeholder.com/250" // Replace with your image URL
+              src={c4} // Replace with your image URL
               alt="About Us"
               style={{
-                width: "250px",
-                height: "250px",
-                borderRadius: "50%",
+                width: "400px",
+                height: "400px",
                 objectFit: "cover",
               }}
             />

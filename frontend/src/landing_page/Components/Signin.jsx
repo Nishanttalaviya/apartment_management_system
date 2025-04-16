@@ -1,17 +1,34 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../Assets/css/landingstyle.css";
 import login from "../Assets/image/login.jpg";
 import logo from "../Assets/image/rnvlogo.png";
+<<<<<<< HEAD
 import { useState } from "react";
+=======
+>>>>>>> 77432883d7ed313c05228b7e989f36b04db53a6b
 
 const Signin = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+<<<<<<< HEAD
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+=======
+    rememberMe: false
+  });
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value
+    }));
+  };
+>>>>>>> 77432883d7ed313c05228b7e989f36b04db53a6b
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -23,6 +40,7 @@ const Signin = () => {
 
   const handleSignIn = async (e) => {
     e.preventDefault();
+<<<<<<< HEAD
     setLoading(true);
     setError("");
 
@@ -55,19 +73,22 @@ const Signin = () => {
       setError(err.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
+=======
+
+    // For demo purposes - just navigate to dashboard
+    navigate("/userapp");
+    
+    // If you want to remember the email (without actual auth)
+    if (formData.rememberMe) {
+      localStorage.setItem("rememberedEmail", formData.email);
+>>>>>>> 77432883d7ed313c05228b7e989f36b04db53a6b
     }
   };
 
   return (
-    <div
-      className="signin-container d-flex align-items-center justify-content-center"
-      style={{ minHeight: "100vh" }}
-    >
+    <div className="signin-container d-flex align-items-center justify-content-center" style={{ minHeight: "100vh" }}>
       <div className="row w-100">
-        <div
-          className="w-100"
-          style={{ height: "20px", backgroundColor: "#052C65" }}
-        ></div>
+        <div className="w-100" style={{ height: "20px", backgroundColor: "#052C65" }}></div>
 
         {/* Left Section */}
         <div className="col-md-6 d-flex flex-column justify-content-center align-items-center bg-light p-5">
@@ -84,8 +105,9 @@ const Signin = () => {
           {/* Back Arrow Button */}
           <div className="d-flex justify-content-start w-100 mb-3">
             <button
-              onClick={() => navigate("/")}
+              onClick={() => navigate(-1)}
               className="btn text-dark fs-5"
+              aria-label="Go back"
             >
               ← Back
             </button>
@@ -96,6 +118,7 @@ const Signin = () => {
               src={logo}
               className="img-fluid mb-2"
               style={{ width: "250px" }}
+              alt="Company Logo"
             />
             <h3>Sign In</h3>
             <p className="text-muted">Sign in with your details to continue</p>
@@ -123,6 +146,9 @@ const Signin = () => {
                 type="email"
                 className="form-control"
                 id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 placeholder="Enter your email"
                 required
                 value={formData.email}
@@ -137,6 +163,9 @@ const Signin = () => {
                 type="password"
                 className="form-control"
                 id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 placeholder="Enter your password"
                 required
                 value={formData.password}
@@ -148,6 +177,9 @@ const Signin = () => {
                 type="checkbox"
                 className="form-check-input"
                 id="rememberMe"
+                name="rememberMe"
+                checked={formData.rememberMe}
+                onChange={handleChange}
               />
               <label className="form-check-label" htmlFor="rememberMe">
                 Remember me
@@ -155,10 +187,11 @@ const Signin = () => {
             </div>
             <button
               type="submit"
-              className="btn btn-primary w-100"
+              className="btn btn-primary w-100 py-2"
               style={{ backgroundColor: "#052C65" }}
               disabled={loading}
             >
+<<<<<<< HEAD
               {loading ? (
                 <>
                   <span
@@ -184,6 +217,20 @@ const Signin = () => {
           >
             &larr; Back
           </Link>
+=======
+              Sign In
+            </button>
+          </form>
+
+          <div className="mt-3 text-center w-100" style={{ maxWidth: "400px" }}>
+            <p className="text-muted">
+              Forgot Password? <Link to="/forgot-password">Click here</Link>
+            </p>
+            <p className="text-muted">
+              Don't have an account? <Link to="/signup">Sign up</Link>
+            </p>
+          </div>
+>>>>>>> 77432883d7ed313c05228b7e989f36b04db53a6b
         </div>
       </div>
     </div>
