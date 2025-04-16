@@ -1,33 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const AdminVehicleInfoPage = () => {
-  const [vehicles, setVehicles] = useState([
-    {
-      vehicleId: "V001",
-      apartmentNumber: "101",
-      ownerName: "John Doe",
-      vehicleType: "Car",
-      vehicleNumber: "GJ-01-AB-1234",
-      status: "Active",
-    },
-    {
-      vehicleId: "V002",
-      apartmentNumber: "102",
-      ownerName: "Jane Smith",
-      vehicleType: "Bike",
-      vehicleNumber: "GJ-01-CD-5678",
-      status: "Inactive",
-    },
-    {
-      vehicleId: "V003",
-      apartmentNumber: "103",
-      ownerName: "Emily Davis",
-      vehicleType: "Car",
-      vehicleNumber: "GJ-02-EF-9012",
-      status: "Active",
-    },
-  ]);
-
+  const API_BASE_URL = "http://localhost:4545/api/vehicles"; // Replace with your backend URL
+  const [vehicles, setVehicles] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -36,25 +11,53 @@ const AdminVehicleInfoPage = () => {
   const [formState, setFormState] = useState({
     vehicleId: "",
     apartmentNumber: "",
-    ownerName: "",
+    name: "",
     vehicleType: "",
     vehicleNumber: "",
-    status: "Active",
   });
+
+  // Fetch all vehicles from the backend
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        // console.log("Fetching vehicles...");
+        const response = await fetch(API_BASE_URL);
+        if (!response.ok) {
+          throw new Error("Failed to fetch vehicles");
+        }
+        const data = await response.json();
+        // console.log("Data received:", data);
+
+        // Map backend properties to frontend properties
+        const mappedData = data.map((vehicle) => ({
+          vehicleId: vehicle.vehicleid,
+          apartmentNumber: vehicle.apartmentnumber,
+          name: vehicle.name,
+          vehicleType: vehicle.vehicletype,
+          vehicleNumber: vehicle.vehiclenumber,
+        }));
+
+        setVehicles(mappedData);
+      } catch (error) {
+        console.error("Error fetching vehicles:", error);
+      }
+    };
+
+    fetchVehicles();
+  }, []);
 
   // Filter vehicles based on the search query
   const filteredVehicles = vehicles.filter(
     (vehicle) =>
-      vehicle.ownerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      vehicle.apartmentNumber.includes(searchQuery) ||
-      vehicle.vehicleType.toLowerCase().includes(searchQuery.toLowerCase())
+      vehicle.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      vehicle.apartmentNumber?.toString().includes(searchQuery) ||
+      vehicle.vehicleType?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleAddVehicle = () => {
+  // Handle Add Vehicle
+  const handleAddVehicle = async () => {
     if (
-      !formState.vehicleId ||
       !formState.apartmentNumber ||
-      !formState.ownerName ||
       !formState.vehicleType ||
       !formState.vehicleNumber
     ) {
@@ -62,12 +65,42 @@ const AdminVehicleInfoPage = () => {
       return;
     }
 
-    setVehicles([...vehicles, formState]);
-    setShowModal(false);
-    resetFormState();
-    alert("Vehicle added successfully!");
+    try {
+      const response = await fetch(API_BASE_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formState),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to add vehicle");
+      }
+
+      const newVehicle = await response.json();
+
+      // Ensure the new vehicle is in the correct format
+      const formattedVehicle = {
+        vehicleId: newVehicle.vehicleid,
+        apartmentNumber: newVehicle.apartmentnumber,
+        name: newVehicle.name,
+        vehicleType: newVehicle.vehicletype,
+        vehicleNumber: newVehicle.vehiclenumber,
+      };
+
+      // Update the state with the new vehicle
+      setVehicles((prevVehicles) => [...prevVehicles, formattedVehicle]);
+      setShowModal(false);
+      resetFormState();
+      alert("Vehicle added successfully!");
+    } catch (error) {
+      console.error("Error adding vehicle:", error);
+      alert("Failed to add vehicle. Please try again.");
+    }
   };
 
+  // Handle Edit Vehicle
   const handleEditVehicle = (vehicleId) => {
     const vehicle = vehicles.find((v) => v.vehicleId === vehicleId);
     setFormState(vehicle);
@@ -76,11 +109,10 @@ const AdminVehicleInfoPage = () => {
     setShowModal(true);
   };
 
-  const handleUpdateVehicle = () => {
+  // Handle Update Vehicle
+  const handleUpdateVehicle = async () => {
     if (
-      !formState.vehicleId ||
       !formState.apartmentNumber ||
-      !formState.ownerName ||
       !formState.vehicleType ||
       !formState.vehicleNumber
     ) {
@@ -88,35 +120,79 @@ const AdminVehicleInfoPage = () => {
       return;
     }
 
-    setVehicles(
-      vehicles.map((vehicle) =>
-        vehicle.vehicleId === selectedVehicle ? formState : vehicle
-      )
-    );
-    setShowModal(false);
-    resetFormState();
-    alert("Vehicle updated successfully!");
-  };
+    try {
+      const response = await fetch(`${API_BASE_URL}/${selectedVehicle}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formState),
+      });
 
-  const handleDeleteVehicle = (vehicleId) => {
-    if (
-      window.confirm(`Are you sure you want to delete vehicle ID ${vehicleId}?`)
-    ) {
-      setVehicles(
-        vehicles.filter((vehicle) => vehicle.vehicleId !== vehicleId)
+      if (!response.ok) {
+        throw new Error("Failed to update vehicle");
+      }
+
+      const updatedVehicle = await response.json();
+
+      // Ensure the updated vehicle is in the correct format
+      const formattedVehicle = {
+        vehicleId: updatedVehicle.vehicleid,
+        apartmentNumber: updatedVehicle.apartmentnumber,
+        name: updatedVehicle.name,
+        vehicleType: updatedVehicle.vehicletype,
+        vehicleNumber: updatedVehicle.vehiclenumber,
+      };
+
+      // Update the state with the updated vehicle
+      setVehicles((prevVehicles) =>
+        prevVehicles.map((vehicle) =>
+          vehicle.vehicleId === selectedVehicle ? formattedVehicle : vehicle
+        )
       );
-      alert(`Deleted Vehicle ID: ${vehicleId}`);
+
+      setShowModal(false);
+      resetFormState();
+      alert("Vehicle updated successfully!");
+    } catch (error) {
+      console.error("Error updating vehicle:", error);
+      alert("Failed to update vehicle. Please try again.");
     }
   };
 
+  // Handle Delete Vehicle
+  const handleDeleteVehicle = async (vehicleId) => {
+    if (
+      window.confirm(`Are you sure you want to delete vehicle ID ${vehicleId}?`)
+    ) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/${vehicleId}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to delete vehicle");
+        }
+
+        setVehicles((prevVehicles) =>
+          prevVehicles.filter((vehicle) => vehicle.vehicleId !== vehicleId)
+        );
+        alert(`Deleted Vehicle ID: ${vehicleId}`);
+      } catch (error) {
+        console.error("Error deleting vehicle:", error);
+        alert("Failed to delete vehicle. Please try again.");
+      }
+    }
+  };
+
+  // Reset form state
   const resetFormState = () => {
     setFormState({
       vehicleId: "",
       apartmentNumber: "",
-      ownerName: "",
+      name: "",
       vehicleType: "",
       vehicleNumber: "",
-      status: "Active",
     });
     setIsEdit(false);
     setSelectedVehicle(null);
@@ -127,8 +203,8 @@ const AdminVehicleInfoPage = () => {
       <div className="d-flex justify-content-between align-items-center mb-4">
         {/* Header Section */}
         <div className="mb-4">
-          <h2 className="fw-bold mb-2">Vechile Info Management</h2>
-          <p className="text-muted">Manage Vechile Info of Apartment.</p>
+          <h2 className="fw-bold mb-2">Vehicle Info Management</h2>
+          <p className="text-muted">Manage Vehicle Info of Apartment.</p>
         </div>
         <div className="d-flex gap-2">
           <button
@@ -160,7 +236,6 @@ const AdminVehicleInfoPage = () => {
               <th>Owner Name</th>
               <th>Vehicle Type</th>
               <th>Vehicle Number</th>
-              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -170,20 +245,9 @@ const AdminVehicleInfoPage = () => {
                 <tr key={vehicle.vehicleId}>
                   <td>{vehicle.vehicleId}</td>
                   <td>{vehicle.apartmentNumber}</td>
-                  <td>{vehicle.ownerName}</td>
+                  <td>{vehicle.name}</td>
                   <td>{vehicle.vehicleType}</td>
                   <td>{vehicle.vehicleNumber}</td>
-                  <td>
-                    <span
-                      className={`badge ${
-                        vehicle.status === "Active"
-                          ? "bg-success"
-                          : "bg-secondary"
-                      }`}
-                    >
-                      {vehicle.status}
-                    </span>
-                  </td>
                   <td>
                     <button
                       className="btn btn-warning btn-sm me-2"
@@ -203,7 +267,7 @@ const AdminVehicleInfoPage = () => {
             ) : (
               <tr>
                 <td colSpan="7" className="text-center">
-                  No vehicles match the search query.
+                  No vehicles found.
                 </td>
               </tr>
             )}
@@ -226,42 +290,40 @@ const AdminVehicleInfoPage = () => {
                 ></button>
               </div>
               <div className="modal-body">
-                <div className="mb-3">
-                  <label className="form-label">Vehicle ID</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={formState.vehicleId}
-                    onChange={(e) =>
-                      setFormState({ ...formState, vehicleId: e.target.value })
-                    }
-                    disabled={isEdit} // Disable ID in edit mode
-                  />
-                </div>
+                {/* Conditionally render Vehicle ID and Owner Name in Edit mode */}
+                {isEdit && (
+                  <>
+                    <div className="mb-3">
+                      <label className="form-label">Vehicle ID</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={formState.vehicleId}
+                        disabled
+                      />
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">Owner Name</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={formState.name}
+                        disabled
+                      />
+                    </div>
+                  </>
+                )}
                 <div className="mb-3">
                   <label className="form-label">Apartment Number</label>
                   <input
                     type="text"
                     className="form-control"
                     value={formState.apartmentNumber}
+                    disabled={isEdit}
                     onChange={(e) =>
                       setFormState({
                         ...formState,
                         apartmentNumber: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label">Owner Name</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={formState.ownerName}
-                    onChange={(e) =>
-                      setFormState({
-                        ...formState,
-                        ownerName: e.target.value,
                       })
                     }
                   />

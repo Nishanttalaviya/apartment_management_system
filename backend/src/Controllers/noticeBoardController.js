@@ -36,8 +36,11 @@ const getNoticeById = async (req, res) => {
 
 // Create a new notice with auto-incrementing ID
 const createNotice = async (req, res) => {
-  const { title, status, description, createdDate, expirationDate } = req.body;
+   const { title, status, description, createdDate, expirationDate } = req.body;
 
+   if (!title || !status || !description || !createdDate) {
+     return res.status(400).json({ error: "Missing required fields" });
+   }
   try {
     // Fetch the last inserted noticeId
     const lastIdResult = await c1.query(

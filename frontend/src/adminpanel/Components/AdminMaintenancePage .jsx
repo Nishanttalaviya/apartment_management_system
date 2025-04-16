@@ -117,7 +117,7 @@ const AdminMaintenancePage = () => {
         </div>
 
         {/* Recent Activities Section */}
-        <div className="row mb-4">
+        {/* <div className="row mb-4">
           <div className="col-lg-8">
             <div className="card shadow-sm border-0">
               <div className="card-header bg-white py-3">
@@ -142,7 +142,7 @@ const AdminMaintenancePage = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </main>
   );

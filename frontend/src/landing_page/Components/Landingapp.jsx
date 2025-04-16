@@ -1,9 +1,4 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useLocation,
-} from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import LandingNavbar from "./LandingNavbar";
 import LandingFooter from "./LandingFooter";
 import Signin from "./Signin";
@@ -37,30 +32,28 @@ const Layout = ({ children }) => {
 
 const LandingApp = () => {
   return (
-    <Router>
-      <Routes>
-        {/* Home Page with Navbar & Footer */}
-        <Route
-          path="/"
-          element={
-            <Layout>
-              <HeroSection />
-              <AboutUs />
-              <WhyChooseUs />
-              <Services />
-              <Apartments />
-              <ContactUs />
-            </Layout>
-          }
-        />
+    <Routes>
+      {/* Home Page with Navbar & Footer */}
+      <Route
+        path="/"
+        element={
+          <Layout>
+            <HeroSection />
+            <AboutUs />
+            <WhyChooseUs />
+            <Services />
+            <Apartments />
+            <ContactUs />
+          </Layout>
+        }
+      />
 
-        {/* Dynamic Pages without Navbar & Footer */}
-        <Route path="/sign_in" element={<Signin />} />
-        <Route path="/forget" element={<Forget />} />
-        <Route path="/reset" element={<Reset />} />
-        <Route path="/confirm" element={<Confirm />} />
-      </Routes>
-    </Router>
+      {/* Dynamic Pages without Navbar & Footer */}
+      <Route path="/sign_in" element={<Signin />} />
+      <Route path="/forget" element={<Forget />} />
+      <Route path="/reset" element={<Reset />} />
+      <Route path="/confirm" element={<Confirm />} />
+    </Routes>
   );
 };
 

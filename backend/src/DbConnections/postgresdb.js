@@ -1,14 +1,27 @@
-const { Pool } = require("pg"); // Correctly import the 'Pool' class from the 'pg' library
+const { Pool } = require("pg");
+require("dotenv").config();
 
 const connectionObj = () => {
   const pool = new Pool({
-    user: "postgres",
-    host: "localhost",
-    database: "apartment_management",
-    password: "RS1510pj*&",
-    port: 5432,
-    max: 10,
+    user: process.env.DB_USER || "postgres",
+    host: process.env.DB_HOST || "localhost",
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
+    max: process.env.DB_MAX,
   });
+
+  // Test the connection
+  pool
+    .connect()
+    .then((client) => {
+      console.log("✅ Database connection successful!");
+      client.release(); // release the client back to the pool
+    })
+    .catch((err) => {
+      console.error("❌ Database connection failed:", err.message);
+    });
+
   return pool;
 };
 

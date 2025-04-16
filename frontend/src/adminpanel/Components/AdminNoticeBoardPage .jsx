@@ -1,65 +1,141 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const AdminNoticeBoardPage = () => {
-  const [notices, setNotices] = useState([
-    {
-      id: 1,
-      title: "Notice 1",
-      description: "This is a description for Notice 1",
-      date: "2025-01-15",
-      status: "Active",
-    },
-    {
-      id: 2,
-      title: "Notice 2",
-      description: "This is a description for Notice 2",
-      date: "2025-01-16",
-      status: "Active",
-    },
-  ]);
+  const API_BASE_URL = "http://localhost:4545/api/notices";
+  const [notices, setNotices] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editNotice, setEditNotice] = useState(null);
   const [newNotice, setNewNotice] = useState({
     title: "",
     description: "",
-    date: "",
+    createdDate: "", // Ensure this matches the backend field name
     status: "Active",
   });
 
-  const handleShow = () => setShowModal(true);
-  const handleClose = () => {
-    setShowModal(false);
-    setEditNotice(null);
+  // Fetch all notices from the backend
+  useEffect(() => {
+    const fetchNotices = async () => {
+      try {
+        const response = await fetch(API_BASE_URL);
+        if (!response.ok) {
+          throw new Error("Failed to fetch notices");
+        }
+        const data = await response.json();
+        setNotices(data);
+      } catch (error) {
+        console.error("Error fetching notices:", error);
+      }
+    };
+
+    fetchNotices();
+  }, []);
+
+  // Add a new notice
+  const handleAddNotice = async () => {
+    try {
+      const response = await fetch(API_BASE_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newNotice),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to add notice");
+      }
+
+      const data = await response.json();
+      setNotices([...notices, data]); // Update the state with the new notice
+      handleClose(); // Close the modal
+    } catch (error) {
+      console.error("Error adding notice:", error);
+    }
   };
 
-  const handleAddNotice = () => {
-    const newNoticeData = { ...newNotice, id: notices.length + 1 };
-    setNotices([...notices, newNoticeData]);
-    handleClose();
-  };
-
+  // Edit a notice
   const handleEditNotice = (notice) => {
     setEditNotice(notice);
     setNewNotice({
       title: notice.title,
       description: notice.description,
-      date: notice.date,
+      createdDate: notice.createdDate, // Ensure this matches the backend field name
       status: notice.status,
     });
-    handleShow();
+    handleShow(); // Open the modal
   };
 
-  const handleDeleteNotice = (id) => {
-    setNotices(notices.filter((notice) => notice.id !== id));
-  };
-
-  const handleSaveNotice = () => {
-    setNotices(
-      notices.map((notice) =>
-        notice.id === editNotice.id ? { ...editNotice, ...newNotice } : notice
-      )
+  // Save changes to an edited notice
+  const handleSaveNotice = async () => {
+    // Show a confirmation dialog
+    const isConfirmed = window.confirm(
+      "Are you sure you want to save changes to this notice?"
     );
-    handleClose();
+
+    // Proceed only if the user confirms
+    if (isConfirmed) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/${editNotice.noticeid}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newNotice),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to update notice");
+        }
+
+        const data = await response.json();
+        setNotices(
+          notices.map((notice) =>
+            notice.noticeid === editNotice.noticeid ? data : notice
+          )
+        ); // Update the state with the edited notice
+        handleClose(); // Close the modal
+      } catch (error) {
+        console.error("Error updating notice:", error);
+      }
+    }
+  };
+  // Delete a notice
+  const handleDeleteNotice = async (noticeid) => {
+    // Show a confirmation dialog
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete this notice?"
+    );
+
+    // Proceed only if the user confirms
+    if (isConfirmed) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/${noticeid}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to delete notice");
+        }
+
+        // Update the state by removing the deleted notice
+        setNotices(notices.filter((notice) => notice.noticeid !== noticeid));
+      } catch (error) {
+        console.error("Error deleting notice:", error);
+      }
+    }
+  };
+
+  // Modal handlers
+  const handleShow = () => setShowModal(true);
+  const handleClose = () => {
+    setShowModal(false);
+    setEditNotice(null);
+    setNewNotice({
+      title: "",
+      description: "",
+      createdDate: "", // Ensure this matches the backend field name
+      status: "Active",
+    });
   };
 
   return (
@@ -89,11 +165,20 @@ const AdminNoticeBoardPage = () => {
           </thead>
           <tbody>
             {notices.map((notice) => (
-              <tr key={notice.id}>
+              <tr key={notice.noticeid}>
                 <td>{notice.title}</td>
                 <td>{notice.description}</td>
-                <td>{notice.date}</td>
-                <td>{notice.status}</td>
+                <td>{notice.createddate}</td>
+                <td>
+                  {" "}
+                  <span
+                    className={`badge ${
+                      notice.status === "Active" ? "bg-success" : "bg-danger"
+                    }`}
+                  >
+                    {notice.status}
+                  </span>
+                </td>
                 <td>
                   <button
                     className="btn btn-warning"
@@ -103,7 +188,7 @@ const AdminNoticeBoardPage = () => {
                   </button>
                   <button
                     className="btn btn-danger ms-2"
-                    onClick={() => handleDeleteNotice(notice.id)}
+                    onClick={() => handleDeleteNotice(notice.noticeid)}
                   >
                     Delete
                   </button>
@@ -117,20 +202,52 @@ const AdminNoticeBoardPage = () => {
       {/* Modal for Add/Edit Notice */}
       {showModal && (
         <div
-          className="modal show"
-          style={{ display: "block" }}
+          className={`modal show fade`}
+          style={{
+            display: "block",
+            backdropFilter: "blur(10px)", // Blur effect
+            transition: "opacity 0.3s ease-in-out",
+          }}
           onClick={handleClose} // Close when clicking outside
         >
           <div
             className="modal-dialog"
-            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
+            style={{
+              transform: "translateY(0)",
+              animation: "slideIn 0.3s ease-in-out",
+            }}
+            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
           >
-            <div className="modal-content">
-              <div className="modal-header">
+            <div
+              className="modal-content"
+              style={{
+                opacity: showModal ? 1 : 0.95, // Slight transparency for effect
+                background: "rgba(255, 255, 255, 0.85)", // Light background with opacity
+                backdropFilter: "blur(20px)", // Enhanced blur
+                borderRadius: "10px",
+                boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)",
+                overflow: "hidden",
+              }}
+            >
+              <div className="modal-header bg-dark text-white">
                 <h5 className="modal-title">
                   {editNotice ? "Edit Notice" : "Add Notice"}
                 </h5>
-                <button className="btn-close" onClick={handleClose}></button>
+                <button
+                  className="btn"
+                  onClick={handleClose}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    padding: "5px",
+                    cursor: "pointer",
+                  }}
+                >
+                  <i
+                    className="bi bi-x-lg"
+                    style={{ color: "white", fontSize: "1.5rem" }}
+                  ></i>
+                </button>
               </div>
               <div className="modal-body">
                 <div className="mb-3">
@@ -143,6 +260,11 @@ const AdminNoticeBoardPage = () => {
                       setNewNotice({ ...newNotice, title: e.target.value })
                     }
                     placeholder="Enter notice title"
+                    style={{
+                      borderRadius: "5px",
+                      border: "1px solid #ccc",
+                      transition: "all 0.2s ease-in-out",
+                    }}
                   />
                 </div>
                 <div className="mb-3">
@@ -157,17 +279,30 @@ const AdminNoticeBoardPage = () => {
                       })
                     }
                     placeholder="Enter notice description"
+                    style={{
+                      borderRadius: "5px",
+                      border: "1px solid #ccc",
+                      transition: "all 0.2s ease-in-out",
+                    }}
                   />
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Date</label>
                   <input
-                    type="date"
+                    type="datetime-local"
                     className="form-control"
-                    value={newNotice.date}
+                    value={newNotice.createdDate}
                     onChange={(e) =>
-                      setNewNotice({ ...newNotice, date: e.target.value })
+                      setNewNotice({
+                        ...newNotice,
+                        createdDate: e.target.value,
+                      })
                     }
+                    style={{
+                      borderRadius: "5px",
+                      border: "1px solid #ccc",
+                      transition: "all 0.2s ease-in-out",
+                    }}
                   />
                 </div>
                 <div className="mb-3">
@@ -178,6 +313,11 @@ const AdminNoticeBoardPage = () => {
                     onChange={(e) =>
                       setNewNotice({ ...newNotice, status: e.target.value })
                     }
+                    style={{
+                      borderRadius: "5px",
+                      border: "1px solid #ccc",
+                      transition: "all 0.2s ease-in-out",
+                    }}
                   >
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
@@ -185,12 +325,23 @@ const AdminNoticeBoardPage = () => {
                 </div>
               </div>
               <div className="modal-footer">
-                <button className="btn btn-secondary" onClick={handleClose}>
+                <button
+                  className="btn btn-secondary"
+                  onClick={handleClose}
+                  style={{
+                    borderRadius: "5px",
+                    transition: "all 0.2s ease-in-out",
+                  }}
+                >
                   Close
                 </button>
                 <button
                   className="btn btn-primary"
                   onClick={editNotice ? handleSaveNotice : handleAddNotice}
+                  style={{
+                    borderRadius: "5px",
+                    transition: "all 0.2s ease-in-out",
+                  }}
                 >
                   {editNotice ? "Save Changes" : "Add Notice"}
                 </button>

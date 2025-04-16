@@ -6,15 +6,16 @@ const AdminAddMembers = () => {
   const [filterStatus, setFilterStatus] = useState("All");
   const [newMember, setNewMember] = useState({
     name: "",
-    apartment: "",
+    apartmentnumber: "",
     contact: "",
     email: "",
     wing: "",
-    familyMembersCount: "",
+    family_members: "",
+    joiningdate: "", // Initialize as empty string
   });
   const [editMember, setEditMember] = useState(null);
+  const apiUrl = "http://localhost:4545/api/members/";
 
-  // Fetch members from API
   useEffect(() => {
     fetch("http://localhost:4545/api/members/")
       .then((response) => response.json())
@@ -22,70 +23,175 @@ const AdminAddMembers = () => {
       .catch((error) => console.error("Error fetching members:", error));
   }, []);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewMember((prev) => ({ ...prev, [name]: value }));
+  const formatDateTime = (dateTimeString) => {
+    if (!dateTimeString) return "";
+
+    const date = new Date(dateTimeString);
+
+    // Extract date and time components
+    const day = String(date.getDate()).padStart(2, "0"); // dd
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // mm
+    const year = date.getFullYear(); // yyyy
+    const hours = String(date.getHours()).padStart(2, "0"); // hh
+    const minutes = String(date.getMinutes()).padStart(2, "0"); // mm
+
+    // Format as dd/mm/yyyy hh:mm
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
   };
 
-  // Add Member (POST request)
-  const handleAddMember = () => {
-    if (Object.values(newMember).some((value) => value.trim() === "")) {
-      alert("Please fill out all fields.");
-      return;
-    }
-    fetch("http://localhost:4545/api/members/", {
+const handleAddMember = async () => {
+  // Validate all required fields
+  const requiredFields = [
+    "name",
+    "apartmentnumber",
+    "contact",
+    "email",
+    "wing",
+    "joiningdate",
+  ];
+  const missingFields = requiredFields.filter(
+    (field) => !newMember[field]?.trim()
+  );
+
+  if (missingFields.length > 0) {
+    alert(`Missing required fields: ${missingFields.join(", ")}`);
+    return;
+  }
+
+  try {
+    const payload = {
+      name: newMember.name.trim(),
+      apartmentnumber: newMember.apartmentnumber.trim(),
+      contact: newMember.contact.trim(),
+      email: newMember.email.trim(),
+      wing: newMember.wing.trim(),
+      family_members: newMember.family_members?.trim() || "0",
+      joiningdate: new Date(newMember.joiningdate).toISOString(),
+      status: "Active",
+    };
+
+    const response = await fetch("http://localhost:4545/api/members/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...newMember, status: "Active" }),
-    })
-      .then((response) => response.json())
-      .then((data) => setMembers((prev) => [...prev, data]))
-      .catch((error) => console.error("Error adding member:", error));
+      body: JSON.stringify(payload),
+    });
 
+    const data = await response.json();
+
+    if (!response.ok) {
+      if (data.error && data.error.includes("duplicate key")) {
+        throw new Error("A member with these details already exists");
+      }
+      throw new Error(data.error || `HTTP error! status: ${response.status}`);
+    }
+
+    // Update state
+    setMembers((prev) => [...prev, data]);
     setNewMember({
       name: "",
-      apartment: "",
+      apartmentnumber: "",
       contact: "",
       email: "",
       wing: "",
-      familyMembersCount: "",
+      family_members: "",
+      joiningdate: "",
     });
+
+    alert("Member added successfully!");
+  } catch (error) {
+    console.error("Error:", error);
+    alert(`Error: ${error.message}`);
+  }
+};
+  const handleSaveEdit = async () => {
+    if (!editMember || !editMember.memberid) {
+      console.error("Error: Member ID is missing or undefined.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${apiUrl}${editMember.memberid}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(editMember),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to update member");
+      }
+
+      const updatedMember = await response.json();
+
+      setMembers((prev) =>
+        prev.map((member) =>
+          member.memberid === editMember.memberid ? updatedMember : member
+        )
+      );
+
+      setEditMember(null);
+      alert("Member updated successfully");
+    } catch (error) {
+      console.error("Error updating member:", error);
+      alert(`Error updating member: ${error.message}`);
+    }
   };
 
-  // Toggle Member Status (PATCH request)
-  const handleToggleStatus = (id, currentStatus) => {
-    const newStatus = currentStatus === "Active" ? "Inactive" : "Active";
-    fetch(`http://localhost:4545/api/members/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus }),
-    })
-      .then(() => {
-        setMembers((prev) =>
-          prev.map((member) =>
-            member.id === id ? { ...member, status: newStatus } : member
-          )
-        );
-      })
-      .catch((error) => console.error("Error updating status:", error));
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    if (editMember) {
+      setEditMember((prev) => ({ ...prev, [name]: value }));
+    } else {
+      setNewMember((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
-  // Edit Member (PUT request)
-  const handleSaveEdit = () => {
-    fetch(`http://localhost:4545/api/members/${editMember.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editMember),
-    })
-      .then(() => {
-        setMembers((prev) =>
-          prev.map((member) =>
-            member.id === editMember.id ? editMember : member
-          )
-        );
-        setEditMember(null);
-      })
-      .catch((error) => console.error("Error updating member:", error));
+  const handleTogglestatus = async (memberId, currentstatus) => {
+    if (!memberId) {
+      console.error("Error: memberId is undefined");
+      return;
+    }
+
+    // Confirmation dialog before updating status
+    const confirmUpdate = window.confirm(
+      `Are you sure you want to change the status to ${
+        currentstatus === "Active" ? "Inactive" : "Active"
+      }?`
+    );
+
+    if (!confirmUpdate) {
+      return; // Exit if the user cancels the confirmation
+    }
+
+    try {
+      const newStatus = currentstatus === "Active" ? "Inactive" : "Active";
+      const response = await fetch(`${apiUrl}${memberId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update status");
+      }
+
+      setMembers((prev) =>
+        prev.map((member) =>
+          member.memberid === memberId
+            ? { ...member, status: newStatus }
+            : member
+        )
+      );
+      console.log("Status updated successfully");
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditMember(null); // Exit edit mode without saving
   };
 
   const filteredMembers = members.filter(
@@ -109,7 +215,9 @@ const AdminAddMembers = () => {
 
         <div className="card shadow-sm border-0 mb-4">
           <div className="card-header bg-dark py-3 text-white">
-            <h5 className="mb-0 fw-bold">Add Member</h5>
+            <h5 className="mb-0 fw-bold">
+              {editMember ? "Edit Member" : "Add Member"}
+            </h5>
           </div>
           <div className="card-body">
             <div className="row g-3">
@@ -118,19 +226,46 @@ const AdminAddMembers = () => {
                   <label className="form-label">
                     {key.replace(/([A-Z])/g, " $1")}
                   </label>
-                  <input
-                    type="text"
-                    name={key}
-                    className="form-control"
-                    value={newMember[key]}
-                    onChange={handleInputChange}
-                  />
+                  {key === "joiningdate" ? (
+                    <input
+                      type="datetime-local"
+                      name={key}
+                      className="form-control"
+                      value={editMember ? editMember[key] : newMember[key]}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      name={key}
+                      className="form-control"
+                      value={editMember ? editMember[key] : newMember[key]}
+                      onChange={handleInputChange}
+                    />
+                  )}
                 </div>
               ))}
               <div className="col-12 text-end">
-                <button className="btn btn-primary" onClick={handleAddMember}>
-                  Add Member
-                </button>
+                {editMember ? (
+                  <>
+                    <button
+                      className="btn btn-success me-2"
+                      onClick={handleSaveEdit}
+                    >
+                      Save Changes
+                    </button>
+                    <button
+                      className="btn btn-secondary"
+                      onClick={handleCancelEdit}
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <button className="btn btn-primary" onClick={handleAddMember}>
+                    Add Member
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -158,7 +293,7 @@ const AdminAddMembers = () => {
           </div>
           <div className="card-body">
             <table className="table table-striped table-hover">
-              <thead>
+              <thead className="table-dark">
                 <tr>
                   <th>SR NO</th>
                   <th>Name</th>
@@ -167,6 +302,7 @@ const AdminAddMembers = () => {
                   <th>Email</th>
                   <th>Wing</th>
                   <th>Family Members</th>
+                  <th>Joining Date</th>
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
@@ -177,11 +313,12 @@ const AdminAddMembers = () => {
                     <tr key={member.id || index}>
                       <td>{index + 1}</td>
                       <td>{member.name}</td>
-                      <td>{member.apartment}</td>
+                      <td>{member.apartmentnumber}</td>
                       <td>{member.contact}</td>
                       <td>{member.email}</td>
                       <td>{member.wing}</td>
-                      <td>{member.familyMembersCount}</td>
+                      <td>{member.family_members}</td>
+                      <td>{formatDateTime(member.joiningdate)}</td>
                       <td>
                         <button
                           className={`btn btn-sm ${
@@ -190,7 +327,7 @@ const AdminAddMembers = () => {
                               : "btn-danger"
                           }`}
                           onClick={() =>
-                            handleToggleStatus(member.id, member.status)
+                            handleTogglestatus(member.memberid, member.status)
                           }
                         >
                           {member.status}
@@ -208,7 +345,7 @@ const AdminAddMembers = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="9" className="text-center py-3">
+                    <td colSpan="10" className="text-center py-3">
                       No members found.
                     </td>
                   </tr>

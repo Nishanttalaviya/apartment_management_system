@@ -1,57 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Home = () => {
+  const [members, setMembers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("All");
 
-  const members = [
-    {
-      id: 1,
-      name: "Radhesh",
-      apartment: "101",
-      contact: "123-456-7890",
-      email: "rjoshi123@rku.ac.in",
-      wing: "A",
-      familyMembersCount: 4,
-      status: "Active",
-    },
-    {
-      id: 2,
-      name: "Vaibhav",
-      apartment: "102",
-      contact: "987-654-3210",
-      email: "vgoriya456@rku.ac.in",
-      wing: "B",
-      familyMembersCount: 3,
-      status: "Active",
-    },
-    {
-      id: 3,
-      name: "Nishant",
-      apartment: "103",
-      contact: "555-555-5555",
-      email: "ntalavita789@rku.ac.in",
-      wing: "C",
-      familyMembersCount: 2,
-      status: "Active",
-    },
-    {
-      id: 4,
-      name: "Jenil",
-      apartment: "104",
-      contact: "444-444-4444",
-      email: "jgajera258@rku.ac.in",
-      wing: "D",
-      familyMembersCount: 5,
-      status: "Active",
-    },
-  ];
+  useEffect(() => {
+    fetch("http://localhost:4545/api/members/")
+      .then((response) => response.json())
+      .then((data) => setMembers(Array.isArray(data) ? data : []))
+      .catch((error) => console.error("Error fetching members:", error));
+  }, []);
 
   const filteredMembers = members.filter(
     (member) =>
-      member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.apartment.includes(searchTerm) ||
-      member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.contact.includes(searchTerm)
+      (filterStatus === "All" || member.status === filterStatus) &&
+      ((member.name &&
+        member.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (member.apartment && member.apartment.includes(searchTerm)) ||
+        (member.email &&
+          member.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (member.contact && member.contact.includes(searchTerm)))
   );
 
   return (
@@ -68,7 +37,11 @@ const Home = () => {
         {/* Metrics Cards */}
         <div className="row mb-4">
           {[
-            { title: "Total Residents", value: "120", change: "+5.0%" },
+            {
+              title: "Total Residents",
+              value: members.length,
+              change: "+5.0%",
+            },
             { title: "Pending Fees", value: "$8,540", change: "-2.0%" },
             { title: "Hall Bookings", value: "45", change: "+12.0%" },
             { title: "Resolved Issues", value: "78", change: "+8.0%" },
@@ -164,50 +137,73 @@ const Home = () => {
         </div>
 
         {/* Total Members Table */}
-        <div className="row">
-          <div className="col-12">
-            <div className="card shadow-sm border-0">
-              <div className="card-header bg-white py-3 d-flex justify-content-between">
-                <h5 className="mb-0 fw-bold">Total Members</h5>
-                <input
-                  type="text"
-                  className="form-control form-control-sm w-25"
-                  placeholder="Search by Apartment or Name Or Phone Number"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <div className="card-body">
-                <table className="table table-striped table-hover">
-                  <thead>
-                    <tr>
-                      <th>SR NO</th>
-                      <th>Name</th>
-                      <th>Apartment</th>
-                      <th>Contact</th>
-                      <th>Email</th>
-                      <th>Wing</th>
-                      <th>Family Members</th>
-                      <th>Status</th>
+        <div className="card shadow-sm border-0">
+          <div className="card-header bg-white py-3 d-flex justify-content-between">
+            <h5 className="mb-0 fw-bold">Members List</h5>
+            <select
+              className="form-select form-select-sm w-auto"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <option value="All">All</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+            <input
+              type="text"
+              className="form-control form-control-sm w-25"
+              placeholder="Search by Name or Apartment"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="card-body">
+            <table className="table table-striped table-hover">
+              <thead className="table-dark">
+                <tr>
+                  <th>SR NO</th>
+                  <th>Name</th>
+                  <th>Apartment</th>
+                  <th>Contact</th>
+                  <th>Email</th>
+                  <th>Wing</th>
+                  <th>Family Members</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredMembers.length > 0 ? (
+                  filteredMembers.map((member, index) => (
+                    <tr key={member.id || index}>
+                      <td>{index + 1}</td>
+                      <td>{member.name}</td>
+                      <td>{member.apartment}</td>
+                      <td>{member.contact}</td>
+                      <td>{member.email}</td>
+                      <td>{member.wing}</td>
+                      <td>{member.family_members}</td>
+                      <td>
+                        <span
+                          className={`badge ${
+                            member.status === "Active"
+                              ? "bg-success"
+                              : "bg-danger"
+                          }`}
+                        >
+                          {member.status}
+                        </span>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {filteredMembers.map((member, index) => (
-                      <tr key={index}>
-                        <td>{index + 1}</td>
-                        <td>{member.name}</td>
-                        <td>{member.apartment}</td>
-                        <td>{member.contact}</td>
-                        <td>{member.email}</td>
-                        <td>{member.wing}</td>
-                        <td>{member.familyMembersCount}</td>
-                        <td>{member.status}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="9" className="text-center py-3">
+                      No members found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

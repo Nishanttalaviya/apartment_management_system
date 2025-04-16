@@ -1,191 +1,146 @@
-import { useState } from "react";
 import { NavLink } from "react-router-dom";
 
-const Sidebar = () => {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  const toggleSidebar = () => {
-    setIsExpanded((prev) => !prev);
+const Sidebar = ({ isSidebarExpanded, toggleSidebar }) => {
+  // Define all admin routes in one place
+  const adminRoutes = {
+    dashboard: "/admin",
+    addMembers: "/admin/adminAddMembers",
+    maintenance: "/admin/adminMaintenancePage",
+    complaints: "/admin/adminComplaints",
+    hallBooking: "/admin/adminHallBookingPage",
+    noticeBoard: "/admin/adminNoticeBoardPage",
+    visitorManagement: "/admin/adminVisitorManagementPage",
+    vehicleInfo: "/admin/adminVehicleInfoPage",
+    profile: "/admin/profile",
+    logout: "/logout",
   };
 
   return (
-    <aside id="sidebar" className={isExpanded ? "expand" : ""}>
+    <aside id="sidebar" className={isSidebarExpanded ? "expand" : ""}>
       <div className="d-flex">
         <button className="toggle-btn" type="button" onClick={toggleSidebar}>
-          <i className="bi bi-grid"></i> {/* Sidebar toggle icon */}
+          <i className="bi bi-grid"></i>
         </button>
         <div className="sidebar-logo">
-          <NavLink to="/" className="navbar-brand fs-2">
+          <NavLink to={adminRoutes.dashboard} className="navbar-brand fs-2">
             RNV
-          </NavLink>{" "}
-          {/* Branding for Sidebar */}
+          </NavLink>
         </div>
       </div>
       <ul className="sidebar-nav">
         <li className="sidebar-item">
           <NavLink
-            to="/"
+            to={adminRoutes.dashboard}
             className={({ isActive }) =>
               `sidebar-link ${isActive ? "active" : ""}`
             }
+            end
           >
-            <i className="bi bi-house-door me-2"></i> {/* Home icon */}
+            <i className="bi bi-house-door me-2"></i>
             <span>Dashboard</span>
           </NavLink>
         </li>
         <li className="sidebar-item">
           <NavLink
-            to="/AdminAddMembers"
+            to={adminRoutes.addMembers}
             className={({ isActive }) =>
               `sidebar-link d-flex align-items-center ${
                 isActive ? "active" : ""
               }`
             }
           >
-            <i className="bi bi-person-plus me-2"></i> {/* User Plus icon */}
-            <span className="sidebar-text">Admin Add Members</span>
+            <i className="bi bi-person-plus me-2"></i>
+            <span className="sidebar-text">Add Members</span>
           </NavLink>
         </li>
         <li className="sidebar-item">
           <NavLink
-            to="/adminMaintenancePage"
+            to={adminRoutes.maintenance}
             className={({ isActive }) =>
               `sidebar-link ${isActive ? "active" : ""}`
             }
           >
-            <i className="bi bi-gear-fill"></i>{" "}
-            {/* Tools icon for Maintenance */}
+            <i className="bi bi-gear-fill me-2"></i>
             <span>Maintenance</span>
           </NavLink>
         </li>
         <li className="sidebar-item">
           <NavLink
-            to="/adminComplaints"
+            to={adminRoutes.complaints}
             className={({ isActive }) =>
               `sidebar-link ${isActive ? "active" : ""}`
             }
           >
-            <i className="bi bi-exclamation-circle-fill"></i>{" "}
-            {/* Complaints icon */}
+            <i className="bi bi-exclamation-circle-fill me-2"></i>
             <span>Complaints</span>
           </NavLink>
         </li>
         <li className="sidebar-item">
           <NavLink
-            to="/adminHallBookingPage"
+            to={adminRoutes.hallBooking}
             className={({ isActive }) =>
               `sidebar-link ${isActive ? "active" : ""}`
             }
           >
-            <i className="bi bi-calendar-check-fill"></i>{" "}
-            {/* Calendar Check icon for Hall Booking */}
+            <i className="bi bi-calendar-check-fill me-2"></i>
             <span>Hall Booking</span>
           </NavLink>
         </li>
         <li className="sidebar-item">
           <NavLink
-            to="/adminNoticeBoardPage"
+            to={adminRoutes.noticeBoard}
             className={({ isActive }) =>
               `sidebar-link ${isActive ? "active" : ""}`
             }
           >
-            <i className="bi bi-postcard"></i>{" "}
-            {/* Postcard icon for Notice Board */}
+            <i className="bi bi-postcard me-2"></i>
             <span>Notice Board</span>
           </NavLink>
         </li>
         <li className="sidebar-item">
           <NavLink
-            to="/adminVisitorManagementPage"
+            to={adminRoutes.visitorManagement}
             className={({ isActive }) =>
               `sidebar-link ${isActive ? "active" : ""}`
             }
           >
-            <i className="bi bi-person"></i> {/* Example: Person icon */}
+            <i className="bi bi-person me-2"></i>
             <span>Visitor Management</span>
           </NavLink>
         </li>
         <li className="sidebar-item">
           <NavLink
-            to="/adminVehicleInfoPage"
+            to={adminRoutes.vehicleInfo}
             className={({ isActive }) =>
               `sidebar-link d-flex align-items-center gap-2 ${
                 isActive ? "active" : ""
               }`
             }
           >
-            <i className="bi bi-car-front"></i>{" "}
-            {/* Replaced with a car icon for better context */}
+            <i className="bi bi-car-front me-2"></i>
             <span>Vehicle Info</span>
           </NavLink>
         </li>
-        {/* <li className="sidebar-item">
-          <a
-            href="#auth"
-            className="sidebar-link has-dropdown"
-            data-bs-toggle="collapse"
-            aria-expanded="false"
-            aria-controls="auth"
-          >
-            <i className="bi bi-shield-lock"></i>{" "}
-            <span>Authentication</span>
-          </a>
-          <ul id="auth" className="sidebar-dropdown list-unstyled collapse">
-            <li className="sidebar-item">
-              <NavLink
-                to="/login"
-                className={({ isActive }) =>
-                  `sidebar-link ${isActive ? "active" : ""}`
-                }
-              >
-                <i className="bi bi-box-arrow-in-right"></i>
-                Login
-              </NavLink>
-            </li>
-            <li className="sidebar-item">
-              <NavLink
-                to="/register"
-                className={({ isActive }) =>
-                  `sidebar-link ${isActive ? "active" : ""}`
-                }
-              >
-                <i className="bi bi-person-plus"></i> 
-                Register
-              </NavLink>
-            </li>
-          </ul>
-        </li>
         <li className="sidebar-item">
           <NavLink
-            to="/notification"
+            to={adminRoutes.profile}
             className={({ isActive }) =>
               `sidebar-link ${isActive ? "active" : ""}`
             }
           >
-            <i className="bi bi-bell-fill"></i>
-            <span>Notifications</span>
+            <i className="bi bi-person-circle me-2"></i>
+            <span>Profile</span>
           </NavLink>
         </li>
-        <li className="sidebar-item">
-          <NavLink
-            to="/settings"
-            className={({ isActive }) =>
-              `sidebar-link ${isActive ? "active" : ""}`
-            }
-          >
-            <i className="bi bi-gear"></i>
-            <span>Settings</span>
-          </NavLink>
-        </li> */}
       </ul>
       <div className="sidebar-footer">
         <NavLink
-          to="/logout"
+          to={adminRoutes.logout}
           className={({ isActive }) =>
             `sidebar-link ${isActive ? "active" : ""}`
           }
         >
-          <i className="bi bi-box-arrow-left"></i> {/* Logout icon */}
+          <i className="bi bi-box-arrow-left me-2"></i>
           <span>Logout</span>
         </NavLink>
       </div>

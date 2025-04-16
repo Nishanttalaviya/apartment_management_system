@@ -1,12 +1,23 @@
 const p1 = require("../DbConnections/postgresdb");
 const c1 = p1.connectionObj();
 
-// Get all vehicles
+// Get all vehicles with member details
 const getAllVehicles = async (req, res) => {
   try {
-    const result = await c1.query(
-      "SELECT * FROM VehicleInfo ORDER BY vehicleId ASC"
-    );
+    const query = `
+      SELECT 
+        v.vehicleid,
+        v.apartmentnumber,
+        m.name,
+        v.vehiclenumber,
+        v.vehicletype
+      FROM 
+        vehicleinfo v
+      JOIN 
+        members m ON v.apartmentnumber = m.apartmentnumber;
+    `;
+
+    const result = await c1.query(query);
     res.json(result.rows);
   } catch (error) {
     console.error("Error fetching vehicles:", error);
@@ -36,7 +47,7 @@ const getVehicleById = async (req, res) => {
 
 // Create a new vehicle with auto-incrementing ID
 const createVehicle = async (req, res) => {
-  const { memberId, ownerName, status, vehicleNumber, vehicleType } = req.body;
+  const { apartmentNumber, vehicleNumber, vehicleType } = req.body;
 
   try {
     // Fetch the last inserted vehicleId
@@ -54,16 +65,9 @@ const createVehicle = async (req, res) => {
     }
 
     const query = `
-      INSERT INTO VehicleInfo (vehicleId, memberId, ownerName, status, vehicleNumber, vehicleType)
-      VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`;
-    const values = [
-      newId,
-      memberId,
-      ownerName,
-      status,
-      vehicleNumber,
-      vehicleType,
-    ];
+      INSERT INTO VehicleInfo (vehicleId, apartmentNumber, vehicleNumber, vehicleType)
+      VALUES ($1, $2, $3, $4) RETURNING *`;
+    const values = [newId, apartmentNumber, vehicleNumber, vehicleType];
 
     const result = await c1.query(query, values);
     res.status(201).json(result.rows[0]);
@@ -77,12 +81,11 @@ const createVehicle = async (req, res) => {
 const updateVehicle = async (req, res) => {
   try {
     const { vehicleId } = req.params;
-    const { memberId, ownerName, status, vehicleNumber, vehicleType } =
-      req.body;
+    const { apartmentNumber, vehicleNumber, vehicleType } = req.body;
 
     const result = await c1.query(
-      "UPDATE VehicleInfo SET memberId = $1, ownerName = $2, status = $3, vehicleNumber = $4, vehicleType = $5 WHERE vehicleId = $6 RETURNING *",
-      [memberId, ownerName, status, vehicleNumber, vehicleType, vehicleId]
+      "UPDATE VehicleInfo SET vehicleNumber = $1, vehicleType = $2 WHERE vehicleId = $3 RETURNING *",
+      [vehicleNumber, vehicleType, vehicleId]
     );
 
     if (result.rows.length === 0) {

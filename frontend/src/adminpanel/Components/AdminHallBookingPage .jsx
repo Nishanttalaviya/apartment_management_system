@@ -1,63 +1,87 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const AdminHallBookingPage = () => {
-  // Sample booking requests data
-  const [bookingRequests, setBookingRequests] = useState([
-    {
-      id: 1,
-      user: "Nishant",
-      hall: "Hall A",
-      date: "2025-01-15",
-      timeSlot: "10:00 AM - 12:00 PM",
-      purpose: "Birthday Celebration",
-      status: "Pending",
-    },
-    {
-      id: 2,
-      user: "Radhesh",
-      hall: "Hall B",
-      date: "2025-01-16",
-      timeSlot: "2:00 PM - 4:00 PM",
-      purpose: "Community Meeting",
-      status: "Pending",
-    },
-    {
-      id: 3,
-      user: "Vaibhav",
-      hall: "Hall C",
-      date: "2025-01-17",
-      timeSlot: "6:00 PM - 8:00 PM",
-      purpose: "Wedding Reception",
-      status: "Pending",
-    },
-    {
-      id: 4,
-      user: "Nenish",
-      hall: "Hall D",
-      date: "2025-02-17",
-      timeSlot: "3:00 PM - 5:00 PM",
-      purpose: "Business Seminar",
-      status: "Rejected",
-    },
-  ]);
+  const [bookingRequests, setBookingRequests] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("All");
 
-  // Handle approval/rejection of booking requests
-  const handleApproval = (id) => {
-    setBookingRequests(
-      bookingRequests.map((request) =>
-        request.id === id ? { ...request, status: "Approved" } : request
-      )
-    );
+  // Fetch booking requests from the database
+  useEffect(() => {
+    fetch("http://localhost:4545/api/bookings") // Adjust API URL
+      .then((response) => response.json())
+      .then((data) => setBookingRequests(data))
+      .catch((error) => console.error("Error fetching bookings:", error));
+  }, []);
+
+  // Handle approval of booking requests
+  const handleApproval = async (bookingid) => {
+    try {
+      const response = await fetch(
+        `http://localhost:4545/api/bookings/${bookingid}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: "Approved" }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const updatedBooking = await response.json();
+
+      // Update local state
+      setBookingRequests((prevRequests) =>
+        prevRequests.map((request) =>
+          request.bookingid === bookingid
+            ? { ...request, status: "Approved" }
+            : request
+        )
+      );
+
+      console.log("Booking approved successfully:", updatedBooking);
+    } catch (error) {
+      console.error("Error approving booking:", error);
+    }
   };
 
-  const handleRejection = (id) => {
-    setBookingRequests(
-      bookingRequests.map((request) =>
-        request.id === id ? { ...request, status: "Rejected" } : request
-      )
-    );
-  };
+  // Handle rejection of booking requests
+  const handleRejection = async (bookingid) => {
+    try {
+      const response = await fetch(
+        `http://localhost:4545/api/bookings/${bookingid}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: "Rejected" }),
+        }
+      );
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const updatedBooking = await response.json();
+
+      // Update local state
+      setBookingRequests((prevRequests) =>
+        prevRequests.map((request) =>
+          request.bookingid === bookingid
+            ? { ...request, status: "Rejected" }
+            : request
+        )
+      );
+
+      console.log("Booking rejected successfully:", updatedBooking);
+    } catch (error) {
+      console.error("Error rejecting booking:", error);
+    }
+  };
   // Sample halls data for hall management
   const [halls, setHalls] = useState([
     { id: 1, name: "Hall A", capacity: 100, availability: "Available" },
@@ -76,6 +100,18 @@ const AdminHallBookingPage = () => {
     setHalls([...halls, newHall]);
   };
 
+  // Filter bookings based on search term and status
+  const filteredbookings = bookingRequests.filter((booking) => {
+    const matchesStatus =
+      filterStatus === "All" || booking.status === filterStatus;
+    const matchesSearch =
+      booking.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      booking.hall.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      booking.purpose.toLowerCase().includes(searchTerm.toLowerCase());
+
+    return matchesStatus && matchesSearch;
+  });
+
   return (
     <div className="container-fluid bg-light mt-4 py-5 px-5">
       {/* Header */}
@@ -88,8 +124,27 @@ const AdminHallBookingPage = () => {
         </div>
       </div>
       {/* Booking Requests Section */}
-      <div className="mt-4 bg-light rounded">
-        <h5 className="fw-bold">Booking Requests</h5>
+      <div className="mt-4 bg-light rounded p-4">
+        <div className="d-flex gap-3 mb-3 justify-content-between">
+          <h5 className="fw-bold">Booking Requests</h5>
+          <select
+            className="form-select form-select-sm w-auto"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="All">All</option>
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+          <input
+            type="text"
+            className="form-control form-control-sm w-25"
+            placeholder="Search by Name, Hall, or Purpose"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
         <div className="table-responsive">
           <table className="table table-bordered table-hover table-striped">
             <thead className="table-dark">
@@ -105,13 +160,13 @@ const AdminHallBookingPage = () => {
               </tr>
             </thead>
             <tbody>
-              {bookingRequests.map((request) => (
-                <tr key={request.id}>
-                  <td>{request.id}</td>
-                  <td>{request.user}</td>
+              {filteredbookings.map((request) => (
+                <tr key={request.bookingid}>
+                  <td>{request.bookingid}</td>
+                  <td>{request.name}</td>
                   <td>{request.hall}</td>
                   <td>{request.date}</td>
-                  <td>{request.timeSlot}</td>
+                  <td>{request.timeslot}</td>
                   <td>{request.purpose}</td>
                   <td>
                     <span
@@ -127,22 +182,20 @@ const AdminHallBookingPage = () => {
                     </span>
                   </td>
                   <td>
-                    {request.status === "Pending" && (
-                      <>
-                        <button
-                          className="btn btn-success me-2"
-                          onClick={() => handleApproval(request.id)}
-                        >
-                          <i className="bi bi-check-circle"></i> Approve
-                        </button>
-                        <button
-                          className="btn btn-danger"
-                          onClick={() => handleRejection(request.id)}
-                        >
-                          <i className="bi bi-x-circle"></i> Reject
-                        </button>
-                      </>
-                    )}
+                    <button
+                      className="btn btn-success me-2"
+                      onClick={() => handleApproval(request.bookingid)}
+                      disabled={request.status !== "Pending"}
+                    >
+                      <i className="bi bi-check-circle"></i> Approve
+                    </button>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => handleRejection(request.bookingid)}
+                      disabled={request.status !== "Pending"}
+                    >
+                      <i className="bi bi-x-circle"></i> Reject
+                    </button>
                   </td>
                 </tr>
               ))}
