@@ -89,7 +89,7 @@ const createMaintenance = async (req, res) => {
     if (lastIdResult.rows.length > 0) {
       const lastMaintenanceId = lastIdResult.rows[0].maintenanceid;
       const lastNumber = parseInt(lastMaintenanceId.substring(2)) || 0;
-      newId = MT${lastNumber + 1};
+      newId = `MT${lastNumber + 1}`;
     }
 
     const query = `
@@ -162,8 +162,8 @@ const deleteMaintenance = async (req, res) => {
 let razorpay;
 try {
   razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
+    key_id: "rzp_test_jQOReseIWUxIfd",
+    key_secret: "aEM8dA6xjVN2wE6mm16ut2Zm",
   });
 } catch (error) {
   console.error("Failed to initialize Razorpay:", error);
@@ -209,7 +209,7 @@ const createRazorpayOrder = async (req, res) => {
     const options = {
       amount: amount.toString(), // Razorpay expects string
       currency,
-      receipt: maint_${maintenanceId}_${Date.now()},
+      receipt: `maint_${maintenanceId}_${Date.now()}`,
       payment_capture: 1,
     };
 

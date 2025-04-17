@@ -105,18 +105,18 @@ const getComplaintById = async (req, res) => {
   }
 };
 
-// Then in your createComplaint controller:
 const createComplaint = async (req, res) => {
   try {
     const { description } = req.body;
     const imageUrl = req.file ? req.file.filename : null;
 
+    // Validate required fields
     if (!description) {
-      // If there was a file uploaded but validation failed, remove it
+      // Clean up uploaded file if validation fails
       if (req.file) {
         try {
           fs.unlinkSync(
-            path.join(__dirname, ../uploads/complaints/${req.file.filename})
+            path.join(__dirname, "../uploads/complaints/", req.file.filename)
           );
         } catch (err) {
           console.error("Error deleting file:", err);
@@ -127,21 +127,19 @@ const createComplaint = async (req, res) => {
 
     // Generate new complaint ID
     const lastIdResult = await c1.query(
-      "SELECT complaintid FROM Complaints ORDER BY complaintid DESC LIMIT 1"
+      "SELECT complaintid FROM complaints ORDER BY complaintid DESC LIMIT 1"
     );
 
-    let newId;
-    if (lastIdResult.rows.length === 0) {
-      newId = "C1";
-    } else {
+    let newId = "C1"; // Default starting ID
+    if (lastIdResult.rows.length > 0) {
       const lastComplaintId = lastIdResult.rows[0].complaintid;
-      const lastNumber = parseInt(lastComplaintId.substring(1));
-      newId = C${lastNumber + 1};
+      const lastNumber = parseInt(lastComplaintId.substring(1)) || 0;
+      newId = `C${lastNumber + 1}`;
     }
 
     const query = `
-      INSERT INTO Complaints 
-        (complaintid, memberid, description, createdDate, imageUrl, status)
+      INSERT INTO complaints 
+        (complaintid, memberid, description, createddate, imageurl, status)
       VALUES ($1, $2, $3, NOW(), $4, 'Pending') 
       RETURNING *`;
 
@@ -163,7 +161,7 @@ const createComplaint = async (req, res) => {
     if (req.file) {
       try {
         fs.unlinkSync(
-          path.join(__dirname, ../uploads/complaints/${req.file.filename})
+          path.join(__dirname, "../uploads/complaints/", req.file.filename)
         );
       } catch (err) {
         console.error("Error deleting file:", err);
@@ -172,7 +170,8 @@ const createComplaint = async (req, res) => {
     console.error("Error creating complaint:", error);
     res.status(500).json({
       error: "Internal server error",
-      details: error.message,
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
@@ -180,7 +179,6 @@ const createComplaint = async (req, res) => {
 // Update complaint status (Admin only)
 const updateComplaintStatus = async (req, res) => {
   try {
-
     const { complaintid } = req.params;
     const { status } = req.body;
 

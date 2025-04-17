@@ -49,23 +49,13 @@ const LandingApp = () => {
         }
       />
 
-<<<<<<< HEAD
       {/* Dynamic Pages without Navbar & Footer */}
       <Route path="/sign_in" element={<Signin />} />
+      <Route path="/userapp" element={<Home />} />
       <Route path="/forget" element={<Forget />} />
       <Route path="/reset" element={<Reset />} />
       <Route path="/confirm" element={<Confirm />} />
     </Routes>
-=======
-        {/* Dynamic Pages without Navbar & Footer */}
-        <Route path="/sign_in" element={<Signin />} />
-        <Route path="/userapp" element={<Home />} />
-        <Route path="/forget" element={<Forget />} />
-        <Route path="/reset" element={<Reset />} />
-        <Route path="/confirm" element={<Confirm />} />
-      </Routes>
-    </Router>
->>>>>>> 77432883d7ed313c05228b7e989f36b04db53a6b
   );
 };
 

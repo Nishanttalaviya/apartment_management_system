@@ -5,8 +5,8 @@ const connectionObj = () => {
   const pool = new Pool({
     user: process.env.DB_USER || "postgres",
     host: process.env.DB_HOST || "localhost",
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME || "apartment_management",
+    password: process.env.DB_PASSWORD || "RS1510pj*&",
     port: process.env.DB_PORT,
     max: process.env.DB_MAX,
   });

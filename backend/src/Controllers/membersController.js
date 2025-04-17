@@ -52,7 +52,7 @@ const createMember = async (req, res) => {
     // 1. FIRST send the welcome email
     try {
       await mailerService.sendWelcomeEmail(email, name, tempPassword);
-      console.log(Welcome email successfully sent to ${email});
+      console.log(`Welcome email successfully sent to ${email}`);
     } catch (emailError) {
       console.error("Failed to send welcome email:", emailError);
       return res.status(500).json({
@@ -70,7 +70,7 @@ const createMember = async (req, res) => {
     const newNumber = maxIdResult.rows[0].max_id
       ? maxIdResult.rows[0].max_id + 1
       : 1;
-    const newMemberId = M${newNumber};
+    const newMemberId = `M${newNumber}`;
     const hashedPassword = tempPassword; // Use the temp password as the hashed password for now;
 
     const query = `
@@ -137,42 +137,42 @@ const updateMember = async (req, res) => {
     let paramIndex = 1;
 
     if (name !== undefined) {
-      updates.push(name = $${paramIndex});
+      updates.push(name = $`${paramIndex}`);
       values.push(name);
       paramIndex++;
     }
     if (apartmentnumber !== undefined) {
-      updates.push(apartmentnumber = $${paramIndex});
+      updates.push(apartmentnumber = $`${paramIndex}`);
       values.push(apartmentnumber);
       paramIndex++;
     }
     if (contact !== undefined) {
-      updates.push(contact = $${paramIndex});
+      updates.push(contact = $`${paramIndex}`);
       values.push(contact);
       paramIndex++;
     }
     if (email !== undefined) {
-      updates.push(email = $${paramIndex});
+      updates.push(email = $`${paramIndex}`);
       values.push(email);
       paramIndex++;
     }
     if (wing !== undefined) {
-      updates.push(wing = $${paramIndex});
+      updates.push(wing = $`${paramIndex}`);
       values.push(wing);
       paramIndex++;
     }
     if (family_members !== undefined) {
-      updates.push(family_members = $${paramIndex});
+      updates.push(family_members = $`${paramIndex}`);
       values.push(family_members);
       paramIndex++;
     }
     if (joiningdate !== undefined) {
-      updates.push(joiningdate = $${paramIndex});
+      updates.push(joiningdate = $`${paramIndex}`);
       values.push(new Date(joiningdate).toISOString());
       paramIndex++;
     }
     if (status !== undefined) {
-      updates.push(status = $${paramIndex});
+      updates.push(status = $`${paramIndex}`);
       values.push(status);
       paramIndex++;
     }

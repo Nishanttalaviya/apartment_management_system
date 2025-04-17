@@ -139,7 +139,7 @@ const createBooking = async (req, res) => {
     } else {
       const lastBookingId = lastIdResult.rows[0].bookingid;
       const lastNumber = parseInt(lastBookingId.substring(1));
-      newId = B${lastNumber + 1};
+      newId = `B${lastNumber + 1}`;
     }
 
     const query = `

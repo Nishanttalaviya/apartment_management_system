@@ -8,14 +8,14 @@ const generateToken = (member) => {
       email: member.email,
       category: member.category,
     },
-    process.env.JWT_SECRET,
+    process.env.JWT_SECRET || "default_secret_key",
     { expiresIn: "24h" }
   );
 };
 
 const verifyToken = (token) => {
   try {
-    return jwt.verify(token, process.env.JWT_SECRET);
+    return jwt.verify(token, process.env.JWT_SECRET || "default_secret_key");
   } catch (error) {
     console.error("JWT Verification Error:", error);
     throw error;

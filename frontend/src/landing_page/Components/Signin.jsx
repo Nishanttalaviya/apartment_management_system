@@ -3,44 +3,27 @@ import { Link, useNavigate } from "react-router-dom";
 import "../Assets/css/landingstyle.css";
 import login from "../Assets/image/login.jpg";
 import logo from "../Assets/image/rnvlogo.png";
-<<<<<<< HEAD
-import { useState } from "react";
-=======
->>>>>>> 77432883d7ed313c05228b7e989f36b04db53a6b
 
 const Signin = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-<<<<<<< HEAD
+    rememberMe: false,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-=======
-    rememberMe: false
-  });
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value
-    }));
-  };
->>>>>>> 77432883d7ed313c05228b7e989f36b04db53a6b
-
-  const handleChange = (e) => {
-    const { id, value } = e.target;
+    const { id, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [id]: value,
+      [id]: type === "checkbox" ? checked : value,
     }));
   };
 
   const handleSignIn = async (e) => {
     e.preventDefault();
-<<<<<<< HEAD
     setLoading(true);
     setError("");
 
@@ -66,41 +49,48 @@ const Signin = () => {
       localStorage.setItem("token", data.token);
       localStorage.setItem("member", JSON.stringify(data.member));
 
-      // Redirect to user dashboard
-      navigate("/user");
+      // Redirect based on user role
+      const role = data.member?.role?.toLowerCase();
+      if (role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/user");
+      }
     } catch (err) {
       console.error("Login error:", err);
       setError(err.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
-=======
-
-    // For demo purposes - just navigate to dashboard
-    navigate("/userapp");
-    
-    // If you want to remember the email (without actual auth)
-    if (formData.rememberMe) {
-      localStorage.setItem("rememberedEmail", formData.email);
->>>>>>> 77432883d7ed313c05228b7e989f36b04db53a6b
     }
   };
 
   return (
-    <div className="signin-container d-flex align-items-center justify-content-center" style={{ minHeight: "100vh" }}>
+    <div
+      className="signin-container d-flex align-items-center justify-content-center"
+      style={{ minHeight: "100vh" }}
+    >
       <div className="row w-100">
-        <div className="w-100" style={{ height: "20px", backgroundColor: "#052C65" }}></div>
+        <div
+          className="w-100"
+          style={{ height: "20px", backgroundColor: "#052C65" }}
+        ></div>
 
-        {/* Left Section */}
+        {/* Left Section - Welcome Message */}
         <div className="col-md-6 d-flex flex-column justify-content-center align-items-center bg-light p-5">
-          <img src={login} alt="Efficient Living" className="img-fluid" />
+          <img
+            src={login}
+            alt="Efficient Living"
+            className="img-fluid"
+            style={{ maxHeight: "400px" }}
+          />
           <h2 className="mt-4 text-center">Efficient Living Starts Here</h2>
-          <p className="text-center">
+          <p className="text-center text-muted">
             Our platform is built to meet the needs of apartment communities
             with intuitive, practical, and accessible features.
           </p>
         </div>
 
-        {/* Right Section */}
+        {/* Right Section - Login Form */}
         <div className="col-md-6 d-flex flex-column justify-content-center align-items-center bg-white p-5">
           {/* Back Arrow Button */}
           <div className="d-flex justify-content-start w-100 mb-3">
@@ -146,13 +136,10 @@ const Signin = () => {
                 type="email"
                 className="form-control"
                 id="email"
-                name="email"
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Enter your email"
                 required
-                value={formData.email}
-                onChange={handleChange}
               />
             </div>
             <div className="mb-3">
@@ -163,13 +150,10 @@ const Signin = () => {
                 type="password"
                 className="form-control"
                 id="password"
-                name="password"
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Enter your password"
                 required
-                value={formData.password}
-                onChange={handleChange}
               />
             </div>
             <div className="mb-3 form-check">
@@ -177,7 +161,6 @@ const Signin = () => {
                 type="checkbox"
                 className="form-check-input"
                 id="rememberMe"
-                name="rememberMe"
                 checked={formData.rememberMe}
                 onChange={handleChange}
               />
@@ -191,7 +174,6 @@ const Signin = () => {
               style={{ backgroundColor: "#052C65" }}
               disabled={loading}
             >
-<<<<<<< HEAD
               {loading ? (
                 <>
                   <span
@@ -207,30 +189,11 @@ const Signin = () => {
             </button>
           </form>
 
-          <p className="mt-3 text-muted">
-            Forgot Password? <Link to="/Forget">Click here</Link>
-          </p>
-          <Link
-            to="/Signin"
-            className="mt-3 text-muted"
-            style={{ textDecoration: "none" }}
-          >
-            &larr; Back
-          </Link>
-=======
-              Sign In
-            </button>
-          </form>
-
-          <div className="mt-3 text-center w-100" style={{ maxWidth: "400px" }}>
-            <p className="text-muted">
-              Forgot Password? <Link to="/forgot-password">Click here</Link>
-            </p>
-            <p className="text-muted">
-              Don't have an account? <Link to="/signup">Sign up</Link>
-            </p>
+          <div className="mt-3">
+            <Link to="/forgot-password" className="text-muted">
+              Forgot Password?
+            </Link>
           </div>
->>>>>>> 77432883d7ed313c05228b7e989f36b04db53a6b
         </div>
       </div>
     </div>
