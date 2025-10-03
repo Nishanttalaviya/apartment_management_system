@@ -1,33 +1,3 @@
-# # stage 1: where i pull node's smallest image from docker registry
-# FROM node:20-alpine AS builder
-
-# #create a directory inside the contianer
-# WORKDIR /app
-
-# # Copy package files and install dependencies
-# COPY package*.json ./
-
-# #it use for faster dependencies installation
-# RUN npm install
-
-# # Copy source code to container
-# COPY . .
-
-# RUN npm run build || (echo "❌ Build failed" && exit 1)
-# #stage 2: Runner stage - Create a lightweight production-ready containe
-
-# FROM nginx:alpine AS runner
-
-# # Copy the built files from the builder stage to the nginx server directory
-# COPY --from=builder /app/dist /usr/share/nginx/html
-
-# # Expose port 80 (default for nginx)
-# EXPOSE 80
-
-# # Start nginx to serve the app
-# CMD ["nginx", "-g", "daemon off;"]
-
-
 # Build stage
 FROM node:18-alpine as build
 WORKDIR /app
@@ -51,3 +21,21 @@ EXPOSE 80
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]
+
+
+# docker build -t apartment-frontend .
+# docker run -d \
+#   --name frontend \
+#   -p 3000:80 \
+#   apartment-frontend
+
+
+#docker run -d \
+ # --name db \
+  # -e POSTGRES_DB=apartment_management \
+  # -e POSTGRES_USER=postgres \
+  # -e POSTGRES_PASSWORD=nishant2308 \
+  # -p 5432:5432 \
+  # postgres:14
+
+#docker start db
