@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 const AdminMaintenancePage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -18,11 +19,11 @@ const AdminMaintenancePage = () => {
   );
 
   const handleMarkAsPaid = (apt) => {
-    alert(`Marked maintenance fee for Apartment ${apt} as Paid.`);
+    toast.info(`Marked maintenance fee for Apartment ${apt} as Paid.`);
   };
 
   const handleSendReminder = (apt) => {
-    alert(`Reminder sent for maintenance fee in Apartment ${apt}`);
+    toast.info(`Reminder sent for maintenance fee in Apartment ${apt}`);
   };
 
   return (

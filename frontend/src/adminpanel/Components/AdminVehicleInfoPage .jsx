@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 
 const AdminVehicleInfoPage = () => {
   const API_BASE_URL = "http://localhost:4545/api/vehicles"; // Replace with your backend URL
@@ -61,7 +62,7 @@ const AdminVehicleInfoPage = () => {
       !formState.vehicleType ||
       !formState.vehicleNumber
     ) {
-      alert("Please fill in all the fields.");
+      toast.info("Please fill in all the fields.");
       return;
     }
 
@@ -93,10 +94,10 @@ const AdminVehicleInfoPage = () => {
       setVehicles((prevVehicles) => [...prevVehicles, formattedVehicle]);
       setShowModal(false);
       resetFormState();
-      alert("Vehicle added successfully!");
+      toast.success("Vehicle added successfully!");
     } catch (error) {
       console.error("Error adding vehicle:", error);
-      alert("Failed to add vehicle. Please try again.");
+      toast.error("Failed to add vehicle. Please try again.");
     }
   };
 
@@ -116,7 +117,7 @@ const AdminVehicleInfoPage = () => {
       !formState.vehicleType ||
       !formState.vehicleNumber
     ) {
-      alert("Please fill in all the fields.");
+      toast.info("Please fill in all the fields.");
       return;
     }
 
@@ -153,10 +154,10 @@ const AdminVehicleInfoPage = () => {
 
       setShowModal(false);
       resetFormState();
-      alert("Vehicle updated successfully!");
+      toast.success("Vehicle updated successfully!");
     } catch (error) {
       console.error("Error updating vehicle:", error);
-      alert("Failed to update vehicle. Please try again.");
+      toast.error("Failed to update vehicle. Please try again.");
     }
   };
 
@@ -177,10 +178,10 @@ const AdminVehicleInfoPage = () => {
         setVehicles((prevVehicles) =>
           prevVehicles.filter((vehicle) => vehicle.vehicleId !== vehicleId)
         );
-        alert(`Deleted Vehicle ID: ${vehicleId}`);
+        toast.success(`Deleted Vehicle ID: ${vehicleId}`);
       } catch (error) {
         console.error("Error deleting vehicle:", error);
-        alert("Failed to delete vehicle. Please try again.");
+        toast.error("Failed to delete vehicle. Please try again.");
       }
     }
   };
