@@ -190,7 +190,7 @@ const Signin = () => {
           </form>
 
           <div className="mt-3">
-            <Link to="/forgot-password" className="text-muted">
+            <Link to="/Forget" className="text-muted">
               Forgot Password?
             </Link>
           </div>

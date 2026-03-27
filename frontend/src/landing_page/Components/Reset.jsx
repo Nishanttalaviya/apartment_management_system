@@ -67,7 +67,7 @@ const Reset = () => {
               Our platform is built to meet the needs of apartment communities with intuitive, practical, and accessible features.
             </p>
             <p className="text-muted small">
-              Copyright © 2023 RNV Designed by RNV
+              Copyright © 2026 RNV Designed by RNV
             </p>
           </div>
         </div>

@@ -8,7 +8,7 @@ const LandingFooter = () => {
           {/* Left Section */}
           <div className="col-md-4 mb-4">
           <h2 className=" fw-bold">RNV</h2>
-          <p>Copyright © 2023 RNV</p>
+          <p>Copyright © 2026 RNV</p>
             <p>Designed by RNV</p>
           </div>
 

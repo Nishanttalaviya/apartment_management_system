@@ -6,7 +6,7 @@ const connectionObj = () => {
     user: process.env.DB_USER || "postgres",
     host: process.env.DB_HOST || "localhost",
     database: process.env.DB_NAME || "apartment_management",
-    password: process.env.DB_PASSWORD || "RS1510pj*&",
+    password: process.env.DB_PASSWORD || "nishant2308",
     port: process.env.DB_PORT,
     max: process.env.DB_MAX,
   });
