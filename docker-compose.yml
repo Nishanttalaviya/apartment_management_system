@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  backend:
+    image: backend:latest
+    container_name: backend 
+    build:
+    
+      context: ./backend
+      dockerfile: Dockerfile
+      
+    ports:
+      - "5000:5000"
+    # env_file:
+    #   - ./backend/src/.env
+    # volumes:
+    #   - ./Server/uploads:/app/uploads
+    restart: unless-stopped
+
+  frontend:
+    image: apartment-management-system:latest
+    container_name: apartment-management-system   
+    build:
+      context: ./frontend
+      dockerfile: dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - server
+    restart: unless-stopped

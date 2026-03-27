@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 const AdminAddMembers = () => {
   const [members, setMembers] = useState([]);
@@ -54,7 +55,7 @@ const handleAddMember = async () => {
   );
 
   if (missingFields.length > 0) {
-    alert(`Missing required fields: ${missingFields.join(", ")}`);
+    toast.error(`Missing required fields: ${missingFields.join(", ")}`);
     return;
   }
 
@@ -97,10 +98,10 @@ const handleAddMember = async () => {
       joiningdate: "",
     });
 
-    alert("Member added successfully!");
+    toast.success("Member added successfully!");
   } catch (error) {
     console.error("Error:", error);
-    alert(`Error: ${error.message}`);
+    toast.error(`Error: ${error.message}`);
   }
 };
   const handleSaveEdit = async () => {
@@ -132,10 +133,10 @@ const handleAddMember = async () => {
       );
 
       setEditMember(null);
-      alert("Member updated successfully");
+      toast.success("Member updated successfully");
     } catch (error) {
       console.error("Error updating member:", error);
-      alert(`Error updating member: ${error.message}`);
+      toast.error(`Error updating member: ${error.message}`);
     }
   };
 

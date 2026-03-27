@@ -50,6 +50,16 @@ const createVehicle = async (req, res) => {
   const { apartmentNumber, vehicleNumber, vehicleType } = req.body;
 
   try {
+
+    const apartmentCheck = await c1.query(
+      "SELECT apartmentnumber FROM Members WHERE apartmentnumber = $1",
+      [apartmentNumber],
+    );
+
+    if (apartmentCheck.rows.length === 0) {
+      return res.status(400).json({ error: "Apartment number does not exist" });
+    }
+
     // Fetch the last inserted vehicleId
     const lastIdResult = await c1.query(
       "SELECT vehicleId FROM VehicleInfo ORDER BY vehicleId DESC LIMIT 1"

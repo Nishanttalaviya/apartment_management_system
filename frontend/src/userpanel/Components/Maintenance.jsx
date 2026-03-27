@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { toast } from "react-toastify";
 
 const Maintenance = () => {
   const [pendingMaintenance, setPendingMaintenance] = useState([]);
@@ -132,11 +133,11 @@ const Maintenance = () => {
               );
             }
 
-            alert("Payment successful!");
+            toast.success("Payment successful!");
             fetchMaintenanceData();
           } catch (error) {
             console.error("Payment verification error:", error);
-            alert(`Payment verification failed: ${error.message}`);
+            toast.error(`Payment verification failed: ${error.message}`);
           } finally {
             setPaymentProcessing(false);
           }
@@ -160,7 +161,7 @@ const Maintenance = () => {
       rzp.open();
     } catch (error) {
       console.error("Payment error:", error);
-      alert(`Payment failed: ${error.message}`);
+      toast.error(`Payment failed: ${error.message}`);
       setPaymentProcessing(false);
     }
   };

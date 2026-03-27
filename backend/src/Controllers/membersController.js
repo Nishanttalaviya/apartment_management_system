@@ -46,6 +46,13 @@ const createMember = async (req, res) => {
   } = req.body;
 
   try {
+    const existing = await c1.query("SELECT * FROM Members WHERE email = $1", [
+      email,
+    ]);
+    if (existing.rows.length > 0) {
+      return res.status(400).json({ error: "Email already registered" });
+    }
+
     // Generate temporary password first
     const tempPassword = "12345678"; // Replace with a secure random password generation logic
 
@@ -137,42 +144,42 @@ const updateMember = async (req, res) => {
     let paramIndex = 1;
 
     if (name !== undefined) {
-      updates.push(name = $`${paramIndex}`);
+      updates.push((name = $`${paramIndex}`));
       values.push(name);
       paramIndex++;
     }
     if (apartmentnumber !== undefined) {
-      updates.push(apartmentnumber = $`${paramIndex}`);
+      updates.push((apartmentnumber = $`${paramIndex}`));
       values.push(apartmentnumber);
       paramIndex++;
     }
     if (contact !== undefined) {
-      updates.push(contact = $`${paramIndex}`);
+      updates.push((contact = $`${paramIndex}`));
       values.push(contact);
       paramIndex++;
     }
     if (email !== undefined) {
-      updates.push(email = $`${paramIndex}`);
+      updates.push((email = $`${paramIndex}`));
       values.push(email);
       paramIndex++;
     }
     if (wing !== undefined) {
-      updates.push(wing = $`${paramIndex}`);
+      updates.push((wing = $`${paramIndex}`));
       values.push(wing);
       paramIndex++;
     }
     if (family_members !== undefined) {
-      updates.push(family_members = $`${paramIndex}`);
+      updates.push((family_members = $`${paramIndex}`));
       values.push(family_members);
       paramIndex++;
     }
     if (joiningdate !== undefined) {
-      updates.push(joiningdate = $`${paramIndex}`);
+      updates.push((joiningdate = $`${paramIndex}`));
       values.push(new Date(joiningdate).toISOString());
       paramIndex++;
     }
     if (status !== undefined) {
-      updates.push(status = $`${paramIndex}`);
+      updates.push((status = $`${paramIndex}`));
       values.push(status);
       paramIndex++;
     }
@@ -211,7 +218,7 @@ const deleteMember = async (req, res) => {
     const { memberId } = req.params;
     const result = await c1.query(
       "DELETE FROM Members WHERE memberid = $1 RETURNING *",
-      [memberId]
+      [memberId],
     );
 
     if (result.rows.length === 0) {
@@ -233,7 +240,7 @@ const toggleMemberStatus = async (req, res) => {
     // First get current status
     const currentResult = await c1.query(
       "SELECT status FROM Members WHERE memberid = $1",
-      [memberId]
+      [memberId],
     );
 
     if (currentResult.rows.length === 0) {
@@ -245,7 +252,7 @@ const toggleMemberStatus = async (req, res) => {
 
     const result = await c1.query(
       "UPDATE Members SET status = $1 WHERE memberid = $2 RETURNING memberid, status",
-      [newStatus, memberId]
+      [newStatus, memberId],
     );
 
     res.json({
