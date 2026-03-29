@@ -35,12 +35,11 @@ const { Pool } = require("pg");
 const connectionObj = () => {
   // Use the full Neon connection string
   const pool = new Pool({
-    user: process.env.DB_USER || "postgres",
-    host: process.env.DB_HOST || "localhost",
-    database: process.env.DB_NAME || "apartment_management",
-    password: process.env.DB_PASSWORD || "RS1510pj*&",
-    port: process.env.DB_PORT,
-    max: process.env.DB_MAX,
+    connectionString:
+      "postgresql://apartment_management_owner:npg_mHtW5GZzrxn0@ep-ancient-tree-a4hsfi2b-pooler.us-east-1.aws.neon.tech/apartment_management?sslmode=require&channel_binding=require",
+    ssl: {
+      rejectUnauthorized: false, // Neon requires SSL
+    },
   });
 
   // Test the connection
