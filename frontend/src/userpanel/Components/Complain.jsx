@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import imageCompression from "browser-image-compression";
+import { toast } from "react-toastify";
 
 const ComplaintForm = () => {
   const [formData, setFormData] = useState({
@@ -167,10 +168,10 @@ const ComplaintForm = () => {
         setViewMode("list");
         setSelectedComplaint(null);
       }
-      alert("Complaint deleted successfully!");
+      toast.success("Complaint deleted successfully!");
     } catch (error) {
       console.error("Error deleting complaint:", error);
-      setError("Failed to delete complaint.");
+      toast.error("Failed to delete complaint.");
     }
   };
 
@@ -213,7 +214,7 @@ const ComplaintForm = () => {
         throw new Error(errorData.message || "Failed to submit complaint");
       }
 
-      alert("Complaint submitted successfully!");
+      toast.success("Complaint submitted successfully!");
       setFormData({ date: "", description: "", image: null });
 
       if (viewMode === "list") {
@@ -221,7 +222,7 @@ const ComplaintForm = () => {
       }
     } catch (error) {
       console.error("Submission error:", error);
-      setError(error.message || "Failed to submit complaint");
+      toast.error(error.message || "Failed to submit complaint");
     } finally {
       setIsSubmitting(false);
     }

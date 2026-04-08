@@ -506,6 +506,7 @@
 // export default AdminVisitorManagementPage;
 
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 const AdminVisitorManagementPage = () => {
   const API_BASE_URL = "http://localhost:4545/api/visitors"; // Replace with your backend URL
@@ -596,7 +597,7 @@ const AdminVisitorManagementPage = () => {
       });
     } catch (error) {
       console.error("Error approving visitor:", error);
-      alert(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -724,7 +725,7 @@ const AdminVisitorManagementPage = () => {
       !newVisitor.purpose ||
       !newVisitor.indatetime
     ) {
-      alert("Please fill in all fields.");
+      toast.info("Please fill in all fields.");
       return;
     }
 

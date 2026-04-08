@@ -29,10 +29,6 @@ const getMaintenanceForCurrentMember = async (req, res) => {
       [memberId]
     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "No maintenance records found" });
-    }
-
     res.json(result.rows);
   } catch (error) {
     console.error("Error fetching maintenance records:", error);

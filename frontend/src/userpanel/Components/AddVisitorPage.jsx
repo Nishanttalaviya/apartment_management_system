@@ -311,8 +311,8 @@ const handleAddVisitorRequest = async (e) => {
                                 request.status === "Approved"
                                   ? "bg-success"
                                   : request.status === "Rejected"
-                                  ? "bg-danger"
-                                  : "bg-warning text-dark"
+                                    ? "bg-danger"
+                                    : "bg-warning text-dark"
                               }`}
                             >
                               {request.status}
@@ -388,6 +388,8 @@ const handleAddVisitorRequest = async (e) => {
                   <label className="form-label">Contact Number</label>
                   <input
                     type="text"
+                    maxLength={10}
+                    pattern="[0-9]{10}"
                     className="form-control"
                     value={newVisitor.contact}
                     onChange={(e) =>
@@ -395,6 +397,7 @@ const handleAddVisitorRequest = async (e) => {
                     }
                     placeholder="Enter contact number"
                     disabled={isLoading}
+                    required
                   />
                 </div>
                 <div className="mb-3">
